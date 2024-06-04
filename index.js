@@ -29,6 +29,8 @@ async function run() {
     const userCollections = client.db('DevTalk').collection('users');
 
 
+    // Users Related API
+
     app.post('/users', async(req, res) => {
         const user = req.body;
 
@@ -42,6 +44,13 @@ async function run() {
         const result = await userCollections.insertOne(user);
         res.send(result);
     })
+
+
+    app.get('/users', async(req, res) => {
+       const result = await userCollections.find().toArray();
+       res.send(result);
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
