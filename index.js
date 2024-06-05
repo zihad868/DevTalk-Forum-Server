@@ -56,6 +56,19 @@ async function run() {
       });
     }
 
+    // verify admin 
+    const verifyAdmin = async (req, res, next) => {
+       const email = req.decoded.email;
+       const query = {email: email};
+       const user = await userCollections.findOne(query);
+
+       const isAdmin = user?.role === 'admin';
+       if(!isAdmin){
+          return res.status(403).send({message: 'forbidden access'})
+       }
+       next();
+    }
+
     // Users Related API
 
     app.post('/users', async(req, res) => {
@@ -73,13 +86,13 @@ async function run() {
     })
 
 
-    app.get('/users', verifyToken, async(req, res) => {
+    app.get('/users', verifyToken, verifyAdmin, async(req, res) => {
        const result = await userCollections.find().toArray();
        res.send(result);
     })
 
     // Admin API
-    app.patch('/users/admin/:id', async(req, res) => {
+    app.patch('/users/admin/:id', verifyToken, verifyAdmin, async(req, res) => {
        const id = req.params.id;
        const filter = {_id: new ObjectId(id)}
 
@@ -92,11 +105,11 @@ async function run() {
        res.send(result);
     })
     
-    // verify admin
-    app.get('/users/admin/:email', verifyToken, async(req, res) =>{
+    // user check admin
+    app.get('/users/admin/:email', verifyToken , async(req, res) =>{
        const email = req.params.email;
        if(email !== req.decoded.email){
-          return res.status(403).send({message: 'unauthorized access'})
+          return res.status(403).send({message: 'forbidden access'})
        }
 
        const query = {email: email};
@@ -109,7 +122,7 @@ async function run() {
     })
 
 
-    app.delete('/users/:id', async(req, res) => {
+    app.delete('/users/:id', verifyToken, verifyAdmin, async(req, res) => {
        const id = req.params.id;
        const filter = {_id: new ObjectId(id)}
        const result = await userCollections.deleteOne(filter);
