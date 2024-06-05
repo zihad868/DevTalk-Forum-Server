@@ -29,6 +29,33 @@ async function run() {
     
     const userCollections = client.db('DevTalk').collection('users');
 
+  
+
+    // JWT Token
+    app.post('/jwt', async(req, res) => {
+       const user = req.body;
+       const token = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {expiresIn: '1d'});
+       res.send({ token })
+    })
+
+    // Verify Token
+    const verifyToken = (req, res, next) => {
+       console.log('inside verify token', req.headers.authorization);
+       
+       if(!req.headers.authorization){
+         return res.status(401).send({message: 'forbidden access'})
+       }
+       const token = req.headers.authorization.split(' ')[1];
+       
+       console.log(token)
+       jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, function(err, decoded) {
+          if(err){
+            return res.status(401).send({message: 'forbidden access'})
+          }
+          req.decoded = decoded;
+          next();
+      });
+    }
 
     // Users Related API
 
@@ -47,7 +74,7 @@ async function run() {
     })
 
 
-    app.get('/users', async(req, res) => {
+    app.get('/users', verifyToken, async(req, res) => {
        const result = await userCollections.find().toArray();
        res.send(result);
     })
