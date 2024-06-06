@@ -138,9 +138,17 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/posts', async(req, res) => {
+
+    app.get('/posts',  async(req, res) => {
        const posts = await postCollections.find().toArray();
        res.send(posts);
+    })
+
+    app.get('/posts/:email', verifyToken, async(req, res) => {
+       const email = req.params.email;
+       const query = {authEmail: email}
+       const result = await postCollections.find(query).toArray();
+       res.send(result);
     })
 
 
