@@ -138,6 +138,11 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/posts', async(req, res) => {
+       const posts = await postCollections.find().toArray();
+       res.send(posts);
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
