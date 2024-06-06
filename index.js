@@ -28,6 +28,7 @@ async function run() {
     await client.connect();
     
     const userCollections = client.db('DevTalk').collection('users');
+    const postCollections = client.db('DevTalk').collection('posts');
 
   
 
@@ -127,6 +128,14 @@ async function run() {
        const filter = {_id: new ObjectId(id)}
        const result = await userCollections.deleteOne(filter);
        res.send(result);
+    })
+
+
+    // User Post Related API
+    app.post('/post', verifyToken, async(req, res) => {
+      const body = req.body;
+      const result = await postCollections.insertOne(body);
+      res.send(result);
     })
 
 
