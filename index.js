@@ -139,11 +139,13 @@ async function run() {
     })
 
 
+    // Get Posts
     app.get('/posts',  async(req, res) => {
        const posts = await postCollections.find().toArray();
        res.send(posts);
     })
 
+    // Get Post By Email
     app.get('/posts/:email', verifyToken, async(req, res) => {
        const email = req.params.email;
        const query = {authEmail: email}
@@ -156,6 +158,14 @@ async function run() {
        const query = {_id: new ObjectId(id)}
        const data = await postCollections.deleteOne(query);
        res.send(data);
+    })
+
+    // Get Post By ID
+    app.get('/post/:id', verifyToken, async(req, res) => {
+       const id = req.params.id;
+       const query = {_id: new ObjectId(id)};
+       const post = await postCollections.findOne(query);
+       res.send(post);
     })
 
 
