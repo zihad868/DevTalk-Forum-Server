@@ -141,7 +141,7 @@ async function run() {
 
     // Get Posts
     app.get('/posts',  async(req, res) => {
-       const posts = await postCollections.find().toArray();
+       const posts = await postCollections.find().sort({_id: -1}).toArray();
        res.send(posts);
     })
 
