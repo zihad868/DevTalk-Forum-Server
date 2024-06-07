@@ -139,6 +139,30 @@ async function run() {
     })
 
 
+    // Popular Post
+    app.get('/posts/popular', async(req, res) => {
+       try{
+          const popularPost = await postCollections.aggregate([
+            {
+               $addFields: {
+                  voteDifference: { $subtract: ['$upVote', '$downVote']}
+               }
+            },
+            {
+               $sort: {voteDifference: -1}
+            }
+          ]).toArray()
+          
+         res.send(popularPost);
+       }
+
+       catch(error){
+         console.log(error);
+         return res.status(500).send({message: 'server error'})
+       }
+    })
+
+
     // Get Posts
     app.get('/posts',  async(req, res) => {
        const posts = await postCollections.find().sort({_id: -1}).toArray();
