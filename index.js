@@ -92,6 +92,13 @@ async function run() {
        res.send(result);
     })
 
+    app.get('/users/:email', verifyToken, async(req, res) => {
+       const email = req.params.email;
+       const query = {email: email};
+       const user = await userCollections.findOne(query);
+       res.send(user);
+    })
+
     // Admin API
     app.patch('/users/admin/:id', verifyToken, verifyAdmin, async(req, res) => {
        const id = req.params.id;
