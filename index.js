@@ -200,6 +200,29 @@ async function run() {
        res.send(post);
     })
 
+    // Comments API
+    app.post('/posts/:id/comment', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const text  = req.body;
+        const query = { _id: new ObjectId(id) };
+        const post = await postCollections.findOne(query);
+
+        if (!post) {
+          return res.status(404).send({ error: 'Post not found' });
+        }
+
+        const updatedDoc = {
+          $push: { comments: { text, date: new Date() } }
+        };
+
+        await postCollections.updateOne(query, updatedDoc);
+        res.status(200).send({ message: 'Comment added successfully' });
+      } catch (error) {
+        res.status(500).send({ error: 'Failed to add comment' });
+      }
+    });
+
     // UpVote
     app.post('/post/upvote/:id', async(req, res) => {
        const id = req.params.id;
