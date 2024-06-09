@@ -200,6 +200,19 @@ async function run() {
        res.send(post);
     })
 
+    // Search API
+    app.get('/api/posts', async(req, res) => {
+      const query = req.query.query;
+      const search = {postTag: query}
+      
+      const posts = await postCollections.find(search).sort({_id: -1}).toArray();
+      
+      if(!posts){
+        return res.status(404).send({message: 'not found'})
+      }
+      res.send(posts);
+    })
+
     // Comments API
     app.post('/posts/:id/comment', async (req, res) => {
       try {
