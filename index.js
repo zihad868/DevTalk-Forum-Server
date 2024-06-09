@@ -30,7 +30,7 @@ async function run() {
     
     const userCollections = client.db('DevTalk').collection('users');
     const postCollections = client.db('DevTalk').collection('posts');
-
+    const paymentCollections = client.db('DevTalk').collection('payments');
   
 
     // JWT Token
@@ -221,6 +221,26 @@ async function run() {
        }
        const update = await postCollections.updateOne(query, updatedDoc);
        res.send(update);
+    })
+
+    // Payment API
+    app.post('/payment', async(req, res) => {
+       const payment = req.body;
+       const paymentResult = await paymentCollections.insertOne(payment);
+       
+       // update user
+       const email = payment.email;
+       const query = {email: email};
+
+       const updatedDoc = {
+         $set: {
+            badge: 'gold'
+         }
+       }
+
+       const updateUser = await userCollections.updateOne(query, updatedDoc);
+
+       res.send({paymentResult, updateUser});
     })
 
     //Stripe Payment Intent 
