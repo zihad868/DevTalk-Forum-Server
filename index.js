@@ -73,6 +73,29 @@ async function run() {
 
     // Users Related API
 
+    app.post('/api/ban/user/:email', async (req, res) => {
+      try {
+        const email = req.params.email;
+        const query = { email: email };
+    
+        const updatedDoc = {
+          $set: { status: 'ban' }
+        };
+    
+        // Update user status
+        const banUser = await userCollections.updateOne(query, updatedDoc);
+    
+        // Update posts associated with the user
+        const banPosts = await postCollections.updateMany({ authEmail: email }, updatedDoc);
+    
+        res.send({ banUser, banPosts });
+      } catch (error) {
+        console.error("Error banning user and posts:", error);
+        res.status(500).send("Error banning user and posts");
+      }
+    });
+    
+
     app.post('/users', async(req, res) => {
         const user = req.body;
 
