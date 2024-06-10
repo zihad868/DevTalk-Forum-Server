@@ -320,7 +320,7 @@ async function run() {
 
 
     // Announcement
-    app.post('/announcement',  async(req, res) => {
+    app.post('/announcement', verifyToken, verifyAdmin,  async(req, res) => {
        const body = req.body;
        const result = await announcementCollections.insertOne(body);
 
@@ -337,6 +337,30 @@ async function run() {
       const result = await announcementCollections.find().sort({_id: -1}).toArray();
       res.send(result)
     })
+
+    // Admin Stats
+    app.get('/admin-stats', async (req, res) => {
+      try {
+          const usersCount = await userCollections.estimatedDocumentCount();
+          const postsCount = await postCollections.estimatedDocumentCount();
+  
+          const commentsCountResult = await postCollections.aggregate([
+              { $unwind: "$comments" },
+              { $group: { _id: null, totalComments: { $sum: 1 } } }
+          ]).toArray();
+  
+          const totalComments = commentsCountResult.length > 0 ? commentsCountResult[0].totalComments : 0;
+  
+          res.send({
+              users: usersCount,
+              posts: postsCount,
+              comments: totalComments
+          });
+      } catch (error) {
+          res.status(500).send({ error: 'An error occurred while fetching the stats' });
+      }
+  });
+  
 
 
     // Send a ping to confirm a successful connection
