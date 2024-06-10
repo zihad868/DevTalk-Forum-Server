@@ -31,7 +31,7 @@ async function run() {
     const userCollections = client.db('DevTalk').collection('users');
     const postCollections = client.db('DevTalk').collection('posts');
     const paymentCollections = client.db('DevTalk').collection('payments');
-  
+    const announcementCollections = client.db('DevTalk').collection('announcements');
 
     // JWT Token
     app.post('/jwt', async(req, res) => {
@@ -293,6 +293,26 @@ async function run() {
        res.send({
          clientSecret: paymentIntent.client_secret
        })
+    })
+
+
+    // Announcement
+    app.post('/announcement',  async(req, res) => {
+       const body = req.body;
+       const result = await announcementCollections.insertOne(body);
+
+       const updatedDoc = {
+        $inc: { announcement: 1 }
+    };
+
+      const updateUser = await userCollections.updateMany({}, updatedDoc);
+
+       res.send({result, updatedDoc})
+    })
+
+    app.get('/announcement',  async(req, res) => {
+      const result = await announcementCollections.find().sort({_id: -1}).toArray();
+      res.send(result)
     })
 
 
